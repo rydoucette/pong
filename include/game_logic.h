@@ -1,6 +1,6 @@
 // game_logic.h
 #ifndef GAME_LOGIC_H
-#define GANE_LOGIC_H
+#define GAME_LOGIC_H
 
 #include <stdbool.h>
 #include "paddle.h"

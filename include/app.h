@@ -64,6 +64,7 @@ static const SDL_Color COLOR_BG                   = {17, 17, 17, SDL_ALPHA_OPAQU
 static const SDL_Color COLOR_START_MENU      = {35, 30, 60, SDL_ALPHA_OPAQUE};
 static const SDL_Color COLOR_P1                   = {0, 200, 255, SDL_ALPHA_OPAQUE};   
 static const SDL_Color COLOR_P2                   = {255, 100, 100, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_BALL                   = {190, 170, 160, SDL_ALPHA_OPAQUE};
 static const SDL_Color COLOR_WINNER               = {255, 215, 0, SDL_ALPHA_OPAQUE};
 static const SDL_Color COLOR_LOSER                = {105, 105, 105, SDL_ALPHA_OPAQUE};
 
