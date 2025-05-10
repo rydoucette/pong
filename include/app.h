@@ -60,21 +60,21 @@ static const SDL_Scancode player_keys[PLAYER_COUNT][2] = {
 
 
 // Colors
-static const SDL_Color COLOR_BG                   = {10, 10, 30, SDL_ALPHA_OPAQUE};
-static const SDL_Color COLOR_BALL                 = {255, 170, 100, SDL_ALPHA_OPAQUE};
-//static const SDL_Color COLOR_BALL = {170, 255, 200, SDL_ALPHA_OPAQUE};  // mint green
+static const SDL_Color COLOR_BG                   = {17, 17, 17, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_START_MENU      = {35, 30, 60, SDL_ALPHA_OPAQUE};
 static const SDL_Color COLOR_P1                   = {0, 200, 255, SDL_ALPHA_OPAQUE};   
 static const SDL_Color COLOR_P2                   = {255, 100, 100, SDL_ALPHA_OPAQUE};
 static const SDL_Color COLOR_WINNER               = {255, 215, 0, SDL_ALPHA_OPAQUE};
 static const SDL_Color COLOR_LOSER                = {105, 105, 105, SDL_ALPHA_OPAQUE};
 
 // Text colors
-static const SDL_Color COLOR_SCORE              = {250, 250, 250, SDL_ALPHA_OPAQUE};
-static const SDL_Color COLOR_TITLE              = {255, 255, 255, SDL_ALPHA_OPAQUE};
-static const SDL_Color COLOR_STATE              = {250, 250, 250, SDL_ALPHA_OPAQUE};
-static const SDL_Color COLOR_MESSAGE            = {200, 200, 255, SDL_ALPHA_OPAQUE};
-static const SDL_Color COLOR_OPTION_DISABLED    = {130, 130, 150, SDL_ALPHA_OPAQUE};
-static const SDL_Color COLOR_OPTION_HIGHLIGHTED = {255, 170, 100, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_SCORE                = {250, 250, 250, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_TITLE                = {255, 255, 255, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_STATE                = {250, 250, 250, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_MESSAGE_OFF          = {120, 120, 180, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_MESSAGE_ON           = {200, 200, 255, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_OPTION_DISABLED      = {60, 60, 100, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_OPTION_HIGHLIGHTED   = {100, 170, 255, SDL_ALPHA_OPAQUE};
 
 // Function declarations
 static SDL_AppResult handle_key_up_event(void *appstate, SDL_Scancode key_code);

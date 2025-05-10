@@ -20,7 +20,7 @@ typedef enum
 typedef struct
 {
     SDL_FRect       bounds;
-    //int             tail_length;
+    float           speed;
     int             player_id;
     Score           *score;
     bool            is_human;
@@ -33,12 +33,14 @@ Paddle *create_paddle(
     int             x_pos, 
     int             y_pos,
     int             width,
-    int             height, 
+    int             height,
+    float           speed,
     int             player_id,
     bool            is_human,
     const SDL_Color *color
 );
 void  free_paddle(Paddle *paddle);
+void  set_paddle_speed(Paddle *paddle, float speed);
 void  move_paddle(Paddle *paddle);
 float get_center_y_coord(Paddle *paddle);
 

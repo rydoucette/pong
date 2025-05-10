@@ -63,69 +63,87 @@ void try_move_paddle(Paddle *paddle) {
         move_paddle(paddle);
 }
 
+// computes where the ball will intersect with left or right wall, returns y coordinate
 float predict_ball_y_intersect(const Ball *ball, float target_x, float screen_height) {
     float x = ball->bounds.x;
     float y = ball->bounds.y;
+    float w  = ball->bounds.h;
+    float h  = ball->bounds.h;
     float vx = ball->velocity_x * BALL_SPEED;
     float vy = ball->velocity_y * BALL_SPEED;
-    float h  = ball->bounds.h;
 
-    // Bail early if vx is zero (no horizontal movement)
-    if (vx == 0) return y + h / 2.0f;
+    // debug
+    //printf("Ball x: %.2f, y: %.2f, w: %.2f, h: %.2f,\n",x,y,w,h);
+    //printf("Ball vx: %.2f, vy: %.2f\n",vx,vy);
 
-    // Clamp simulation steps to avoid infinite loops
-    int max_iterations = 1000;
-    while (((vx > 0 && x < target_x) || (vx < 0 && x > target_x)) && max_iterations-- > 0) {
-        float time_to_x = (target_x - x) / vx;
+    // given a balls position and velocity, determine what they will collide with
+    bool found = false;
+    int iterations_left = 200; // avoid infinite loops until this logic is nailed down
+    while(!found && iterations_left >= 0) {
+        
+        // if upper/lower ball is hit then bounce off the wall
+        if(y >= GAME_HEIGHT-1 || y < 0)
+            vy *= -1;
 
-        // Avoid division by zero
-        float time_to_wall = INFINITY;
-        if (vy != 0) {
-            time_to_wall = (vy > 0)
-                ? (screen_height - h - y) / vy
-                : -y / vy;
+        // if ball crosses goal line then stop, the current y is where it will cross
+        if((vx > 0 && x >= target_x) || (vx < 0 && x <= target_x)) {
+            found = true;
+            break;
         }
 
-        float dt = fminf(time_to_x, time_to_wall);
+        // adjust ball position and try again
+        x += vx * BALL_SPEED;
+        y += vy * BALL_SPEED;
 
-        x += vx * dt;
-        y += vy * dt;
-
-        // Handle bounce and clamp inside bounds
-        if (y <= 0) {
-            y = -y;
-            vy = -vy;
-        } else if (y + h >= screen_height) {
-            y = 2 * (screen_height - h) - y;
-            vy = -vy;
-        }
+        // safety measure against infinite loops
+        iterations_left--;
     }
-
-    return y + h / 2.0f;
+    //printf("x:%.2f, y:%.2f, vx:%.2f, vy:%.2f\n",iterations_left,x, y, vx, vy);
+    return y;
 }
 
+// computes a target y coordinate that the paddle should target based on ball trajectory 
 void determine_computer_direction(Paddle *paddle, Ball *ball) {
-    float paddle_y = (float) get_center_y_coord(paddle);
-    float epsilon = 0.5f;
-    float target;
-    float target_center = GAME_HEIGHT / 2.0f;
-
+    float paddle__middle_y = (float) get_center_y_coord(paddle); //y coord of center paddle
+    float epsilon = 0.5f; // off set the minior difference in floating point accuracy
+    float destination_y; // calculated point of where the paddle should go to
+    float ball_travel_distance;
+    float ball_travel_time;
+    float paddle_travel_distance;
     /*
      * If the ball is moving away from the paddle, then reposition paddle to the middle of
-     * the screen. Other we need to meet the ball based on its trajectory. 
+     * the screen. Otherwise we need to meet the ball based on its trajectory. 
      */
     if((ball->velocity_x < 0 && paddle->player_id == 1) || 
        (ball->velocity_x > 0 && paddle->player_id == 0)) {
-        target = GAME_HEIGHT / 2.0f;
+        // ball is moving away from the paddle, reset to the middle of the screen
+        destination_y = GAME_HEIGHT / 2.0f;
+        //travel_distance = abs(destination_y - paddle__middle_y);
+        //travel_time = travel_distance/ball->velocity_x;
+        set_paddle_speed(paddle, 0.25f);
     } else {
-        float paddle_x = (paddle->player_id == 0) ? GAME_WIDTH - BLOCK_SIZE_IN_PIXELS
-                                                  : BLOCK_SIZE_IN_PIXELS;
-        target = predict_ball_y_intersect(ball, paddle_x, GAME_HEIGHT);
+        // ball is moving towards the paddle, caclulate the ball trajectory
+        float paddle_leading_x_coord = (paddle->player_id == 0) ?  1 :  GAME_WIDTH - 1;
+        destination_y = predict_ball_y_intersect(ball, 
+                                                 paddle_leading_x_coord,
+                                                 GAME_HEIGHT);
+        ball_travel_distance = fabsf(paddle_leading_x_coord - ball->bounds.x);
+        ball_travel_time = ball_travel_distance/fabsf(ball->velocity_x);
+        paddle_travel_distance = fabsf(destination_y - paddle__middle_y);
+        float paddle_velocity = paddle_travel_distance/ball_travel_time;
+        printf("distance till target: %.2f\n",ball_travel_distance);
+        printf("time till collision: %.2f\n",ball_travel_time);
+        set_paddle_speed(paddle,paddle_velocity);
     }
-    printf("Target Y: %.2f, Ball: %.2f, Paddle Y: %.2f\n", target, ball->bounds.y,paddle_y);
-    if(paddle_y > target + epsilon) {
+    if(paddle->player_id==1) {
+    printf("Paddle: %s, Target Y: %.2f, Ball: %.2f\n", 
+            (paddle->player_id == 0) ? "paddle-left" : "paddle-right",
+             destination_y,
+             ball->bounds.y);
+    }
+    if(paddle__middle_y > destination_y + epsilon) {
         paddle->next_dir = DIR_UP;
-    } else if(paddle_y < target - epsilon) {
+    } else if(paddle__middle_y < destination_y - epsilon) {
         paddle->next_dir = DIR_DOWN;
     } else {
         paddle->next_dir = DIR_STOPPED;
@@ -169,17 +187,19 @@ Paddle *check_paddle_collision(Ball *ball, Paddle *left_paddle, Paddle *right_pa
 
 // Ball bounces off a paddle
 void reflect_ball_from_paddle(Ball *ball, Paddle *paddle) {
-    float relative_intersect_y = (paddle->bounds.y + paddle->bounds.h / 2.0f) -
-                                 (ball->bounds.y + ball->bounds.h / 2.0f);
+    // distance of center of paddle from center of ball
+    float relative_intersect_y = (paddle->bounds.y + (paddle->bounds.h / 2.0f)) -
+                                 (ball->bounds.y + (ball->bounds.h / 2.0f));
+    // scale of -1 to 1 of where the ball hit the paddle
     float normalized = relative_intersect_y / (paddle->bounds.h / 2.0f);
 
     float vx = -ball->velocity_x; // flip horizontal
-    float vy = normalized;
+    float vy = normalized; // scale of -1 to 1 where the ball hit the paddle
 
     // Normalize vector
-    float magnitude = sqrtf(vx * vx + vy * vy);
-    ball->velocity_x = (vx / magnitude) * BALL_SPEED;
-    ball->velocity_y = (vy / magnitude) * BALL_SPEED;
+    float magnitude = sqrtf(vx * vx + vy * vy); // magnitude of resulting vector
+    ball->velocity_x = (vx / magnitude) * BALL_SPEED; // noramlize it -1 to 1 and scale
+    ball->velocity_y = (vy / magnitude) * BALL_SPEED; // noramlize it -1 to 1 and scale
 }
 
 // Ball bounces off upper or lower wall
@@ -232,6 +252,7 @@ void initialize_paddles(void *appstate, bool left_is_human, bool right_is_human)
                                          p_starting_positions[0][1], // y position
                                          1,                          // width
                                          TAIL_LENGTH,                // height
+                                         (float) PADDLE_SPEED,       // speed
                                          0,                          // player ID
                                          left_is_human,              // is human
                                          &COLOR_P1);                 // color             
@@ -239,6 +260,7 @@ void initialize_paddles(void *appstate, bool left_is_human, bool right_is_human)
                                          p_starting_positions[1][1], // y position
                                          1,                          // width
                                          TAIL_LENGTH,                // hieght
+                                         (float) PADDLE_SPEED,       // speed
                                          1,                          // player ID
                                          right_is_human,             // is human
                                          &COLOR_P2);                 // color   

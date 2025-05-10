@@ -37,6 +37,16 @@ void draw_background(SDL_Renderer *renderer, const SDL_Color *bg_color) {
     SDL_RenderClear(renderer);
 }
 
+// Draw the sleeve down the middle of screen on the start menu
+void draw_start_menu(SDL_Renderer *renderer, const SDL_Color *color) {
+    SDL_FRect r;
+    r = (SDL_FRect) {(float) GAME_WIDTH/4, (float) 0, (float) GAME_WIDTH/2, GAME_HEIGHT};
+    set_rect(&r);
+    set_sdl_color(renderer,color);
+    SDL_RenderFillRect(renderer, &r);
+    set_sdl_color(renderer,color);
+}
+
 // Draw the game ball
 void draw_ball(SDL_Renderer *renderer, Ball *ball) {
     if(ball && ball->visible == false) return;

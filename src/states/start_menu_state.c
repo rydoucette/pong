@@ -17,16 +17,14 @@ static void update_start_menu_state(void *appstate) {
 static void render_start_menu_state(void *appstate) {
     AppState *as = (AppState *)appstate;
     draw_background(as->renderer, &COLOR_BG);
+    draw_start_menu(as->renderer,&COLOR_START_MENU);
 
     SDL_Color pvp_color_option = COLOR_OPTION_DISABLED;
     SDL_Color pve_color_option = COLOR_OPTION_DISABLED;
-    if(as->game_mode == PVP) {
-        pvp_color_option = get_flashing_color(COLOR_OPTION_HIGHLIGHTED,
-                                              COLOR_OPTION_DISABLED);
-    } else {
-        pve_color_option = get_flashing_color(COLOR_OPTION_HIGHLIGHTED,
-                                              COLOR_OPTION_DISABLED);
-    }
+    if(as->game_mode == PVP)
+        pvp_color_option = COLOR_OPTION_HIGHLIGHTED;
+    else
+        pve_color_option = COLOR_OPTION_HIGHLIGHTED;
 
     draw_message(as->renderer, 
                  "PONG",
@@ -37,12 +35,12 @@ static void render_start_menu_state(void *appstate) {
                  "PRESS ENTER TO START",
                  SDL_WINDOW_HEIGHT - 50,
                  as->message_font,
-                 COLOR_MESSAGE);
+                 get_flashing_color(COLOR_MESSAGE_ON,COLOR_MESSAGE_OFF));
     draw_message(as->renderer, 
                  "USE ARROW KEYS TO SCROLL",
                  (SDL_WINDOW_HEIGHT/2) + 120,
                  as->small_message_font,
-                 COLOR_MESSAGE);
+                 COLOR_MESSAGE_ON);
     draw_message(as->renderer, 
                  "VS PLAYER",
                  (SDL_WINDOW_HEIGHT/2) - 40,

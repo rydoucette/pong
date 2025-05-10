@@ -12,6 +12,7 @@ static void set_sdl_color(SDL_Renderer *renderer, const SDL_Color *color);
 static void set_rect(SDL_Rect *r, short x, short y, short w, short h);
 SDL_Color get_flashing_color(SDL_Color color_on, SDL_Color color_off);
 void draw_background(SDL_Renderer *renderer, const SDL_Color *bg_color);
+void draw_start_menu(SDL_Renderer *renderer, const SDL_Color *color);
 void DrawCircle(SDL_Renderer *renderer, int centerX, int centerY, int radius);
 void draw_ball(SDL_Renderer *renderer, Ball *ball);
 void draw_paddle(SDL_Renderer *renderer, Paddle *paddle);

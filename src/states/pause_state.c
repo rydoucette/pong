@@ -28,7 +28,7 @@ static void render_pause_state(void *appstate) {
                  "PRESS P TO RESUME",
                  SDL_WINDOW_HEIGHT - 50,
                  as->message_font,
-                 get_flashing_color(COLOR_MESSAGE,COLOR_OPTION_DISABLED));
+                 get_flashing_color(COLOR_MESSAGE_ON,COLOR_MESSAGE_OFF));
     SDL_RenderPresent(as->renderer);
 }
 

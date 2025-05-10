@@ -2,8 +2,8 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define GAME_WIDTH                80U
-#define GAME_HEIGHT               50U
+#define GAME_WIDTH                60U
+#define GAME_HEIGHT               40U
 #define BLOCK_SIZE_IN_PIXELS      16
 #define SDL_WINDOW_WIDTH          (BLOCK_SIZE_IN_PIXELS * GAME_WIDTH)
 #define SDL_WINDOW_HEIGHT         (BLOCK_SIZE_IN_PIXELS * GAME_HEIGHT)
