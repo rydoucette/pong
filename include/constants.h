@@ -7,9 +7,12 @@
 #define BLOCK_SIZE_IN_PIXELS      16
 #define SDL_WINDOW_WIDTH          (BLOCK_SIZE_IN_PIXELS * GAME_WIDTH)
 #define SDL_WINDOW_HEIGHT         (BLOCK_SIZE_IN_PIXELS * GAME_HEIGHT)
-#define GAME_STATE_STACK_SIZE     4
+#define SCORE_LEFT_POSITION       0.43
+#define SCORE_RIGHT_POSITION      0.57
+#define SCORE_Y_POSITION          20
 #define SCORE_WIDTH               30
 #define SCORE_HEIGHT              40
+#define GAME_STATE_STACK_SIZE     4
 #define PLAYER_COUNT              2
 #define TAIL_LENGTH               8
 #define PADDLE_SPEED              0.66

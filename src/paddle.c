@@ -15,12 +15,10 @@ Paddle* create_paddle(int x_pos, int y_pos, int width, int height, float speed,
     paddle->is_human    = is_human;
     paddle->next_dir    = DIR_STOPPED;
     paddle->color       = color;
-    paddle->score       = create_score(score_positions[player_id][0], // x postion
-                                       score_positions[player_id][1], // y position
-                                       SCORE_WIDTH,                   // width
-                                       SCORE_HEIGHT,                  // height
-                                       &COLOR_SCORE);                 // score
-    
+    paddle->score       = create_score((player_id == 0) ? (float) SCORE_LEFT_POSITION:  // x pos
+                                                          (float) SCORE_RIGHT_POSITION, // x pos
+                                                          SCORE_Y_POSITION,     // y pos
+                                                          &COLOR_SCORE);        // color
     return paddle;
 }
 

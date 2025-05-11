@@ -42,11 +42,12 @@ static SDL_AppResult handle_game_over_event(void *appstate, SDL_Event *event) {
                     return SDL_APP_SUCCESS;
                 case SDL_SCANCODE_KP_ENTER:
                 case SDL_SCANCODE_RETURN:
-                case SDL_SCANCODE_SPACE:
+                case SDL_SCANCODE_SPACE: {
                     GameState *current;
                     gamestate_stack_pop(as->game_state_stack, &current);
                     start_game(as);
                     break;
+                }
                 default: 
                     break;
             }

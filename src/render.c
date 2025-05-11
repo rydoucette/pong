@@ -98,12 +98,13 @@ SDL_Texture *get_texture(SDL_Renderer *renderer,
 }
 
 void draw_score(SDL_Renderer *renderer, Score *score, TTF_Font *font) {
+    //TODO - score does not need a bounnds coordinate, 
     // Prepare to render text
     char score_buffer [16];
     sprintf(score_buffer,"%d",score->score);
 
     // Call reusable render_text() to draw it
-    int text_w = 0, text_h = 0;
+    int text_w = 0, text_h = 0, text_x = 0, text_y = 0;
     SDL_Texture *texture = get_texture(renderer,
                                         font,
                                         score_buffer, 
@@ -117,8 +118,12 @@ void draw_score(SDL_Renderer *renderer, Score *score, TTF_Font *font) {
 
     score->bounds.w = text_w;
     score->bounds.h = text_h;
-    
+
+    printf("bounds.x:%f\n",score->bounds.x);
+    text_x = (score->bounds.x * SDL_WINDOW_WIDTH) - (text_w / 2.0f);
+     
     SDL_RenderTexture(renderer, texture, NULL, &score->bounds);
+    printf("score x: %f, y: %f, w: %f, h: %f\n",score->bounds.x,score->bounds.y,score->bounds.w,score->bounds.h);
     SDL_DestroyTexture(texture);
 }
 

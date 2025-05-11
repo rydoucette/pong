@@ -47,6 +47,7 @@ add_executable(pong
     src/states/game_over_state.c
     src/states/pause_state.c
     src/states/start_menu_state.c
+    src/states/difficulty_menu_state.c
 )
 
 # Link to the actual SDL3 library.

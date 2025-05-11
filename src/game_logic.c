@@ -131,15 +131,15 @@ void determine_computer_direction(Paddle *paddle, Ball *ball) {
         ball_travel_time = ball_travel_distance/fabsf(ball->velocity_x);
         paddle_travel_distance = fabsf(destination_y - paddle__middle_y);
         float paddle_velocity = paddle_travel_distance/ball_travel_time;
-        printf("distance till target: %.2f\n",ball_travel_distance);
-        printf("time till collision: %.2f\n",ball_travel_time);
+        //printf("distance till target: %.2f\n",ball_travel_distance);
+        //printf("time till collision: %.2f\n",ball_travel_time);
         set_paddle_speed(paddle,paddle_velocity);
     }
     if(paddle->player_id==1) {
-    printf("Paddle: %s, Target Y: %.2f, Ball: %.2f\n", 
+    /*printf("Paddle: %s, Target Y: %.2f, Ball: %.2f\n", 
             (paddle->player_id == 0) ? "paddle-left" : "paddle-right",
              destination_y,
-             ball->bounds.y);
+             ball->bounds.y);*/
     }
     if(paddle__middle_y > destination_y + epsilon) {
         paddle->next_dir = DIR_UP;

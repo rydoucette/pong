@@ -10,7 +10,7 @@ typedef struct {
     const     SDL_Color *color;
 } Score;
 
-Score *create_score(int x, int, int w, int h, const SDL_Color *color);
+Score *create_score(float x, float y, const SDL_Color *color);
 void   increase_score(Score *score);
 void   reset_score(Score *score);
 

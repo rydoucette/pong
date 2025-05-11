@@ -22,5 +22,6 @@ GameState *create_play_state(void);
 GameState *create_game_over_state(void);
 GameState *create_pause_state(void);
 GameState *create_start_menu_state(void);
+GameState *create_difficulty_menu_state(void);
 
 #endif

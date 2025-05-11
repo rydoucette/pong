@@ -19,12 +19,16 @@ static void render_start_menu_state(void *appstate) {
     draw_background(as->renderer, &COLOR_BG);
     draw_start_menu(as->renderer,&COLOR_START_MENU);
 
-    SDL_Color pvp_color_option = COLOR_OPTION_DISABLED;
-    SDL_Color pve_color_option = COLOR_OPTION_DISABLED;
-    if(as->game_mode == PVP)
-        pvp_color_option = COLOR_OPTION_HIGHLIGHTED;
+    SDL_Color easy_color_option   = COLOR_OPTION_DISABLED;
+    SDL_Color medium_color_option = COLOR_OPTION_DISABLED;
+    SDL_Color hard_color_option   = COLOR_OPTION_DISABLED;
+    if(as->difficulty_level == EASY)
+        easy_color_option = COLOR_OPTION_HIGHLIGHTED;
+    else if(as->difficulty_level == MEDIUM)
+        medium_color_option = COLOR_OPTION_HIGHLIGHTED;
     else
-        pve_color_option = COLOR_OPTION_HIGHLIGHTED;
+        hard_color_option = COLOR_OPTION_HIGHLIGHTED;
+
 
     draw_message(as->renderer, 
                  "PONG",
@@ -32,25 +36,30 @@ static void render_start_menu_state(void *appstate) {
                  as->title_font,
                  COLOR_TITLE);
     draw_message(as->renderer, 
-                 "PRESS ENTER TO CONFIRM",
-                 SDL_WINDOW_HEIGHT - 50,
-                 as->message_font,
-                 get_flashing_color(COLOR_MESSAGE_ON,COLOR_MESSAGE_OFF));
-    draw_message(as->renderer, 
-                 "USE ARROW KEYS TO SCROLL",
-                 (SDL_WINDOW_HEIGHT/2) + 120,
-                 as->small_message_font,
-                 COLOR_MESSAGE_ON);
-    draw_message(as->renderer, 
-                 "VS PLAYER",
-                 (SDL_WINDOW_HEIGHT/2) - 40,
+                 "EASY",
+                 (SDL_WINDOW_HEIGHT/2) - 60,
                  as->option_font,
-                 pvp_color_option);
+                 easy_color_option);
     draw_message(as->renderer, 
-                 "VS COMPUTER",
-                 (SDL_WINDOW_HEIGHT/2) + 40,
+                "MEDIUM",
+                (SDL_WINDOW_HEIGHT/2),
+                as->option_font,
+                medium_color_option);
+    draw_message(as->renderer, 
+                 "HARD",
+                 (SDL_WINDOW_HEIGHT/2) + 60,
                  as->option_font,
-                 pve_color_option);
+                 hard_color_option);
+    draw_message(as->renderer, 
+                "USE ARROW KEYS TO SCROLL",
+                (SDL_WINDOW_HEIGHT/2) + 120,
+                as->small_message_font,
+                COLOR_MESSAGE_ON);
+    draw_message(as->renderer, 
+                "PRESS ENTER TO CONFIRM",
+                SDL_WINDOW_HEIGHT - 50,
+                as->message_font,
+                get_flashing_color(COLOR_MESSAGE_ON,COLOR_MESSAGE_OFF));
     
     draw_ball(as->renderer, as->ball);
     draw_paddle(as->renderer, as->left_paddle);
@@ -72,18 +81,22 @@ static SDL_AppResult handle_start_menu_event(void *appstate, SDL_Event *event) {
                 case SDL_SCANCODE_RETURN:
                     // lock in choice
                     // start game
-                    if(as->game_mode == PVP) {
-                        start_game(as);
-                        gamestate_stack_push(as->game_state_stack, create_play_state());
-                    } else {
-                        gamestate_stack_push(as->game_state_stack, create_difficulty_menu_state());
-                    }
+                    start_game(as);
+                    gamestate_stack_push(as->game_state_stack, create_play_state());
                     break;
                 case SDL_SCANCODE_W:
                 case SDL_SCANCODE_UP:
+                    if(as->difficulty_level > 0)
+                        as->difficulty_level--;
+                    else
+                        as->difficulty_level = 2;
+                    break;
                 case SDL_SCANCODE_S:
                 case SDL_SCANCODE_DOWN:
-                    as->game_mode ^= 1U; // toggle game_mode
+                    if(as->difficulty_level < 2)
+                        as->difficulty_level++;
+                    else
+                        as->difficulty_level = 0;
                     break;
                 default: 
                     break;
@@ -95,7 +108,7 @@ static SDL_AppResult handle_start_menu_event(void *appstate, SDL_Event *event) {
     return SDL_APP_CONTINUE;
 }
 
-GameState *create_start_menu_state(void) {
+GameState *create_difficulty_menu_state(void) {
     static GameState state = {
         .update = update_start_menu_state,
         .render = render_start_menu_state,

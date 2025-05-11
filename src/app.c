@@ -93,6 +93,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     gamestate_stack_push(as->game_state_stack, create_start_menu_state());
     initialize_paddles(as, false, false); // sets up two AI players playing in background
     initialize_ball(as);
+    as->game_mode = PVP;
+    as->difficulty_level = EASY; // wont be relevant if user selects PVP
     return SDL_APP_CONTINUE;
 }
 
