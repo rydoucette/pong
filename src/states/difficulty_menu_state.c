@@ -54,7 +54,7 @@ static void render_start_menu_state(void *appstate) {
                 "USE ARROW KEYS TO SCROLL",
                 (SDL_WINDOW_HEIGHT/2) + 120,
                 as->small_message_font,
-                COLOR_MESSAGE_ON);
+                COLOR_TEXT);
     draw_message(as->renderer, 
                 "PRESS ENTER TO CONFIRM",
                 SDL_WINDOW_HEIGHT - 50,

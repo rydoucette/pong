@@ -52,8 +52,7 @@
 
 // Background
 static const SDL_Color COLOR_BG                   = {17, 17, 17, SDL_ALPHA_OPAQUE};
-static const SDL_Color COLOR_START_MENU           = {35, 30, 60, SDL_ALPHA_OPAQUE};
-
+static const SDL_Color COLOR_START_MENU           = {30, 35, 50, SDL_ALPHA_OPAQUE};
 // Ball and paddles
 static const SDL_Color COLOR_P1                   = {0, 200, 255, SDL_ALPHA_OPAQUE};   
 static const SDL_Color COLOR_P2                   = {255, 100, 100, SDL_ALPHA_OPAQUE};
@@ -67,7 +66,8 @@ static const SDL_Color COLOR_TITLE                = {255, 255, 255, SDL_ALPHA_OP
 static const SDL_Color COLOR_STATE                = {250, 250, 250, SDL_ALPHA_OPAQUE};
 static const SDL_Color COLOR_MESSAGE_OFF          = {120, 120, 180, SDL_ALPHA_OPAQUE};
 static const SDL_Color COLOR_MESSAGE_ON           = {200, 200, 255, SDL_ALPHA_OPAQUE};
-static const SDL_Color COLOR_OPTION_DISABLED      = {60, 60, 100, SDL_ALPHA_OPAQUE};
-static const SDL_Color COLOR_OPTION_HIGHLIGHTED   = {100, 170, 255, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_OPTION_DISABLED      = {90, 90, 90, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_OPTION_HIGHLIGHTED   = {200, 200, 200, SDL_ALPHA_OPAQUE};
+static const SDL_Color COLOR_TEXT                 = {240, 240, 255, SDL_ALPHA_OPAQUE};
 
 #endif
