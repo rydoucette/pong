@@ -14,6 +14,7 @@ typedef struct GameState {
     void (*update)(void *appstate);
     void (*render)(void *appstate);
     SDL_AppResult (*handle_event)(void *appstate, SDL_Event *event);
+    //void (*destroy)(void);
     int state_id; //debug
 } GameState;
 

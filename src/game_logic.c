@@ -60,7 +60,7 @@ bool would_collide(Paddle *paddle) {
 // Will not move paddle if it collides with upper or lower wall
 void try_move_paddle(Paddle *paddle) {
     if(!would_collide(paddle))
-        move_paddle(paddle);
+        paddle_move(paddle);
 }
 
 // computes where the ball will intersect with left or right wall, returns y coordinate
@@ -105,7 +105,7 @@ float predict_ball_y_intersect(const Ball *ball, float target_x, float screen_he
 // computes a target y coordinate that the paddle should target based on ball trajectory 
 void determine_computer_direction(Paddle *paddle, Ball *ball) {
     float paddle__middle_y = (float) get_center_y_coord(paddle); //y coord of center paddle
-    float epsilon = 0.5f; // off set the minior difference in floating point accuracy
+    float epsilon = PADDLE_MOVE_EPSILON; // offset minor float accuracy
     float destination_y; // calculated point of where the paddle should go to
     float ball_travel_distance;
     float ball_travel_time;
@@ -114,16 +114,16 @@ void determine_computer_direction(Paddle *paddle, Ball *ball) {
      * If the ball is moving away from the paddle, then reposition paddle to the middle of
      * the screen. Otherwise we need to meet the ball based on its trajectory. 
      */
-    if((ball->velocity_x < 0 && paddle->player_id == 1) || 
-       (ball->velocity_x > 0 && paddle->player_id == 0)) {
+    if((ball->velocity_x < 0 && paddle->player_id == PADDLE_RIGHT) || 
+       (ball->velocity_x > 0 && paddle->player_id == PADDLE_LEFT)) {
         // ball is moving away from the paddle, reset to the middle of the screen
         destination_y = GAME_HEIGHT / 2.0f;
         //travel_distance = abs(destination_y - paddle__middle_y);
         //travel_time = travel_distance/ball->velocity_x;
-        set_paddle_speed(paddle, 0.25f);
+        set_paddle_speed(paddle, (float) RETURN_TO_CENTER_SPEED);
     } else {
         // ball is moving towards the paddle, caclulate the ball trajectory
-        float paddle_leading_x_coord = (paddle->player_id == 0) ?  1 :  GAME_WIDTH - 1;
+        float paddle_leading_x_coord = (paddle->player_id == PADDLE_LEFT)? 1: GAME_WIDTH-1;
         destination_y = predict_ball_y_intersect(ball, 
                                                  paddle_leading_x_coord,
                                                  GAME_HEIGHT);
@@ -135,12 +135,8 @@ void determine_computer_direction(Paddle *paddle, Ball *ball) {
         //printf("time till collision: %.2f\n",ball_travel_time);
         set_paddle_speed(paddle,paddle_velocity);
     }
-    if(paddle->player_id==1) {
-    /*printf("Paddle: %s, Target Y: %.2f, Ball: %.2f\n", 
-            (paddle->player_id == 0) ? "paddle-left" : "paddle-right",
-             destination_y,
-             ball->bounds.y);*/
-    }
+
+    // compare paddle position relative to the computed target, move in that direction 
     if(paddle__middle_y > destination_y + epsilon) {
         paddle->next_dir = DIR_UP;
     } else if(paddle__middle_y < destination_y - epsilon) {
@@ -153,9 +149,9 @@ void determine_computer_direction(Paddle *paddle, Ball *ball) {
 // Move paddle if unobstructed
 void update_paddles(Paddle *left_paddle, Paddle *right_paddle, Ball *ball) {
     if(!left_paddle->is_human)
-        determine_computer_direction(left_paddle, ball);
+        determine_computer_direction(left_paddle, ball);  // if computer, pick a direction
     if(!right_paddle->is_human)
-        determine_computer_direction(right_paddle, ball);
+        determine_computer_direction(right_paddle, ball); // if computer, pick a direction
     try_move_paddle(left_paddle);
     try_move_paddle(right_paddle);
 }
@@ -209,23 +205,23 @@ void reflect_ball_from_wall(Ball *ball) {
 
 // Reset ball position, update player's score and serve to the winner
 void handle_goal(Ball *ball, Paddle *scoring_paddle) {
-    ball->bounds.y = GAME_HEIGHT/2;
-    ball->velocity_y = 0;
-
-    if(scoring_paddle->player_id == 0) {
+    if(scoring_paddle->player_id == PADDLE_LEFT) {
         // serve to the left
-        ball->bounds.x = 3*GAME_WIDTH/4;
-        ball->velocity_x = -0.5;
-        increase_score(scoring_paddle->score);
+        ball->bounds.x =   (float) SERVE_TO_LEFT_X_POS;
+        ball->bounds.y =   (float) SERVE_TO_LEFT_Y_POS;
+        ball->velocity_x = (float) BALL_SERVE_VX * -1;
+        ball->velocity_y = (float) BALL_SERVE_VY;
     } else {
         // serve to the right
-        ball->velocity_x = 0.5;
-        ball->bounds.x = GAME_WIDTH/4;
-        increase_score(scoring_paddle->score);
+        ball->bounds.x =   (float) SERVE_TO_RIGHT_X_POS;
+        ball->bounds.y =   (float) SERVE_TO_RIGHT_Y_POS;
+        ball->velocity_x = (float) BALL_SERVE_VX;
+        ball->velocity_y = (float) BALL_SERVE_VY;
     }
-
+    increase_score(scoring_paddle->score);
 }
 
+// Update ball position and velocity taking into account possible collisions and goals
 void update_ball(Ball *ball, Paddle *left_paddle, Paddle *right_paddle) {
     Paddle *colliding_paddle      = check_paddle_collision(ball,left_paddle,right_paddle);
     bool collided_with_upper_wall = check_wall_collision(ball);
@@ -233,37 +229,36 @@ void update_ball(Ball *ball, Paddle *left_paddle, Paddle *right_paddle) {
     if(colliding_paddle) {
         // had an issue with ball infintely bouncing inside a paddle, to fix this the ball 
         // will only bounce if colliding with the paddle it is moving towards
-        if(ball->velocity_x >  0 && colliding_paddle->player_id == 1 || 
-           ball->velocity_x <= 0 && colliding_paddle->player_id == 0) 
+        if(ball->velocity_x >  0 && colliding_paddle->player_id == PADDLE_RIGHT || 
+           ball->velocity_x <= 0 && colliding_paddle->player_id == PADDLE_LEFT) 
             reflect_ball_from_paddle(ball,colliding_paddle);
     } else if(collided_with_upper_wall) {
         reflect_ball_from_wall(ball);
     } else if(scoring_paddle) {
         handle_goal(ball,scoring_paddle);
     }
-    move_ball(ball);
+    ball_move(ball);
 } 
 
 // Create left and right game paddles
 void initialize_paddles(void *appstate, bool left_is_human, bool right_is_human) {
     AppState *as = (AppState *)appstate;
-    // if pvp then left_paddle should be human otherwise false 
-    Paddle *left_paddle  = create_paddle(p_starting_positions[0][0], // x position
-                                         p_starting_positions[0][1], // y position
-                                         1,                          // width
-                                         TAIL_LENGTH,                // height
-                                         (float) PADDLE_SPEED,       // speed
-                                         0,                          // player ID
-                                         left_is_human,              // is human
-                                         &COLOR_P1);                 // color             
-    Paddle *right_paddle = create_paddle(p_starting_positions[1][0], // x position
-                                         p_starting_positions[1][1], // y position
-                                         1,                          // width
-                                         TAIL_LENGTH,                // hieght
-                                         (float) PADDLE_SPEED,       // speed
-                                         1,                          // player ID
-                                         right_is_human,             // is human
-                                         &COLOR_P2);                 // color   
+    Paddle *left_paddle  = paddle_create(LEFT_PADDLE_START_X,  // x position
+                                         PADDLE_START_Y,       // y position
+                                         PADDLE_WIDTH,         // width
+                                         TAIL_LENGTH,          // height
+                                         (float) PADDLE_SPEED, // speed
+                                         0,                    // player ID
+                                         left_is_human,        // is human
+                                         &COLOR_P1);           // color             
+    Paddle *right_paddle = paddle_create(RIGHT_PADDLE_START_X, // x position
+                                         PADDLE_START_Y,       // y position
+                                         PADDLE_WIDTH,         // width
+                                         TAIL_LENGTH,          // hieght
+                                         (float) PADDLE_SPEED, // speed
+                                         1,                    // player ID
+                                         right_is_human,       // is human
+                                         &COLOR_P2);           // color   
     as->left_paddle  = left_paddle;
     as->right_paddle = right_paddle;
 }
@@ -271,13 +266,13 @@ void initialize_paddles(void *appstate, bool left_is_human, bool right_is_human)
 // Create the game ball
 void initialize_ball(void *appstate) {
     AppState *as = (AppState *)appstate;
-    Ball *ball = create_ball(GAME_WIDTH/2,  // x position
-                             GAME_HEIGHT/2, // y position
-                             1,             // width
-                             1,             // height
-                             0.5,           // velocity x
-                             0,             // velocity y
-                             &COLOR_BALL);  // color
+    Ball *ball = ball_create(SERVE_TO_RIGHT_X_POS, // x position
+                             SERVE_TO_RIGHT_Y_POS, // // y position
+                             BALL_BLOCK_SIZE, // width
+                             BALL_BLOCK_SIZE, // height
+                             BALL_SERVE_VX,   // velocity x
+                             BALL_SERVE_VY,   // velocity y
+                             &COLOR_BALL);    // color
     as->ball = ball;
 }
 

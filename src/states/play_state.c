@@ -28,6 +28,9 @@ static void render_play_state(void *appstate) {
 
 static SDL_AppResult handle_play_event(void *appstate, SDL_Event *event) {
     AppState *as = (AppState *)appstate;
+
+    if (event->type == SDL_EVENT_QUIT) { return SDL_APP_SUCCESS; }
+
     switch (event->type) {
         case SDL_EVENT_KEY_DOWN:
             switch (event->key.scancode) {

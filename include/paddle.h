@@ -7,6 +7,12 @@
 #include <stdlib.h>
 #include "score.h" 
 
+/*
+ * For future ryan - since struct is declared here, the struct properties are available
+ * to anything that includes this header file (public). Consider moving the struct 
+ * declaration to the .c file (private) and have getters and setters as needed
+ */
+
 // Possible directions a player can take
 typedef enum
 {
@@ -14,7 +20,6 @@ typedef enum
     DIR_DOWN,
     DIR_STOPPED
 } PaddleDirection;
-
 
 // Represents a player or human operated paddle
 typedef struct
@@ -29,7 +34,7 @@ typedef struct
 } Paddle;
 
 // Function declarations
-Paddle *create_paddle(
+Paddle *paddle_create(
     int             x_pos, 
     int             y_pos,
     int             width,
@@ -39,9 +44,9 @@ Paddle *create_paddle(
     bool            is_human,
     const SDL_Color *color
 );
-void  free_paddle(Paddle *paddle);
-void  set_paddle_speed(Paddle *paddle, float speed);
-void  move_paddle(Paddle *paddle);
-float get_center_y_coord(Paddle *paddle);
+void  paddle_free(Paddle *paddle);
+void  set_paddle_speed(Paddle *paddle, const float speed);
+void  paddle_move(Paddle *paddle);
+float get_center_y_coord(const Paddle *paddle);
 
 #endif

@@ -23,7 +23,7 @@ static void set_rect(SDL_FRect *r) {
 SDL_Color get_flashing_color(SDL_Color color_on, SDL_Color color_off) {
     SDL_Color color;
     Uint32 time = SDL_GetTicks();
-    if((time/250)%2 == 0) {
+    if((time/FLASH_INTERVAL_MS)%2 == 0) {
         color = color_on;
     } else {
         color = color_off;
@@ -44,7 +44,6 @@ void draw_start_menu(SDL_Renderer *renderer, const SDL_Color *color) {
     set_rect(&r);
     set_sdl_color(renderer,color);
     SDL_RenderFillRect(renderer, &r);
-    set_sdl_color(renderer,color);
 }
 
 // Draw the game ball
@@ -79,14 +78,14 @@ SDL_Texture *get_texture(SDL_Renderer *renderer,
     // Create surface using the text
     surface = TTF_RenderText_Blended(font, text, 0, color);
     if (!surface) {
-        SDL_Log("Unable to create surface\n");
+        SDL_Log("Unable to create surface: %s", SDL_GetError());
         return NULL;
     }
 
     // Create texture from that surface
     texture = SDL_CreateTextureFromSurface(renderer, surface);
     if(!texture) {
-        SDL_Log("Unable to create texture\n");
+        SDL_Log("Unable to create texture %s", SDL_GetError());
     }
 
     // optionally, grab the width and height
@@ -98,9 +97,8 @@ SDL_Texture *get_texture(SDL_Renderer *renderer,
 }
 
 void draw_score(SDL_Renderer *renderer, Score *score, TTF_Font *font) {
-    //TODO - score does not need a bounnds coordinate, 
     // Prepare to render text
-    char score_buffer [16];
+    char score_buffer [MAX_SCORE_DIGITS];
     sprintf(score_buffer,"%d",score->score);
 
     // Call reusable render_text() to draw it
@@ -112,18 +110,18 @@ void draw_score(SDL_Renderer *renderer, Score *score, TTF_Font *font) {
                                         &text_w,
                                         &text_h);
     if (!texture) {
-        SDL_Log("failed to render score text");
+        SDL_Log("failed to render score text %s", SDL_GetError());
         return;
     }
 
     score->bounds.w = text_w;
     score->bounds.h = text_h;
 
-    printf("bounds.x:%f\n",score->bounds.x);
+    //printf("bounds.x:%f\n",score->bounds.x);
     text_x = (score->bounds.x * SDL_WINDOW_WIDTH) - (text_w / 2.0f);
      
     SDL_RenderTexture(renderer, texture, NULL, &score->bounds);
-    printf("score x: %f, y: %f, w: %f, h: %f\n",score->bounds.x,score->bounds.y,score->bounds.w,score->bounds.h);
+    //printf("score x: %f, y: %f, w: %f, h: %f\n",score->bounds.x,score->bounds.y,score->bounds.w,score->bounds.h);
     SDL_DestroyTexture(texture);
 }
 
@@ -143,7 +141,7 @@ void draw_message(SDL_Renderer *renderer,
                                        &text_w,
                                        &text_h);
     if (!texture) {
-        SDL_Log("failed to render score text");
+        SDL_Log("failed to render score text %s", SDL_GetError());
         return;
     }
 
