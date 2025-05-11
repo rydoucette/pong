@@ -22,7 +22,10 @@ SDL_Texture *get_score_texture(SDL_Renderer *renderer,
                                SDL_Color    color,
                                int          *out_w,
                                int          *out_h);
-void draw_score(SDL_Renderer *renderer, Score *score, TTF_Font *font);
+void draw_scores(SDL_Renderer *renderer,
+                 Score *left_paddle_score,
+                 Score *right_paddle_score, 
+                 TTF_Font *font);
 void draw_message(SDL_Renderer *renderer,
                   char *msg, 
                   int y,

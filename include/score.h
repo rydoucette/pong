@@ -11,12 +11,11 @@
  */
 
 typedef struct {
-    SDL_FRect bounds;
     int       score;
     const     SDL_Color *color;
 } Score;
 
-Score *score_create(float x, float y, const SDL_Color *color);
+Score *score_create(const SDL_Color *color);
 void   increase_score(Score *score);
 void   reset_score(Score *score);
 

@@ -21,8 +21,10 @@ static void render_play_state(void *appstate) {
     draw_ball(as->renderer, as->ball);
     draw_paddle(as->renderer, as->left_paddle);
     draw_paddle(as->renderer, as->right_paddle);
-    draw_score(as->renderer, as->left_paddle->score, as->score_font);
-    draw_score(as->renderer, as->right_paddle->score, as->score_font);
+    draw_scores(as->renderer, 
+               as->left_paddle->score,
+               as->right_paddle->score,
+               as->score_font);
     SDL_RenderPresent(as->renderer);
 }
 

@@ -42,7 +42,6 @@
 #define TAIL_LENGTH               8
 #define PADDLE_WIDTH              1
 #define FLASH_INTERVAL_MS         250
-#define MAX_SCORE_DIGITS          16
 
 // Speeds
 #define STEP_RATE_IN_MILLISECONDS 15

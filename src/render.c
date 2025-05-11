@@ -96,33 +96,55 @@ SDL_Texture *get_texture(SDL_Renderer *renderer,
     return texture;
 }
 
-void draw_score(SDL_Renderer *renderer, Score *score, TTF_Font *font) {
+void draw_scores(SDL_Renderer *renderer, 
+                 Score *left_paddle_score,
+                 Score *right_paddle_score, 
+                 TTF_Font *font) {
     // Prepare to render text
-    char score_buffer [MAX_SCORE_DIGITS];
-    sprintf(score_buffer,"%d",score->score);
+    char left_paddle_score_buffer [16];
+    char right_paddle_score_buffer [16];
+    sprintf(left_paddle_score_buffer,"%d",left_paddle_score->score);
+    sprintf(right_paddle_score_buffer,"%d",right_paddle_score->score);
+    SDL_FRect left_score_rect;
+    SDL_FRect right_score_rect;
 
-    // Call reusable render_text() to draw it
-    int text_w = 0, text_h = 0, text_x = 0, text_y = 0;
-    SDL_Texture *texture = get_texture(renderer,
-                                        font,
-                                        score_buffer, 
-                                        *score->color,
-                                        &text_w,
-                                        &text_h);
-    if (!texture) {
+    int texture_width = 0;
+    int texture_height = 0;
+    SDL_Texture *left_score_texture = get_texture(renderer,
+                                                  font,
+                                                  left_paddle_score_buffer, 
+                                                  *left_paddle_score->color,
+                                                  &texture_width,
+                                                  &texture_height);
+    if (!left_score_texture) {
         SDL_Log("failed to render score text %s", SDL_GetError());
         return;
     }
 
-    score->bounds.w = text_w;
-    score->bounds.h = text_h;
+    left_score_rect.x = (SCORE_LEFT_POSITION*SDL_WINDOW_WIDTH)-(texture_width/ 2.0f);
+    left_score_rect.y = SCORE_Y_POSITION;
+    left_score_rect.w = texture_width;
+    left_score_rect.h = texture_height;
 
-    //printf("bounds.x:%f\n",score->bounds.x);
-    text_x = (score->bounds.x * SDL_WINDOW_WIDTH) - (text_w / 2.0f);
-     
-    SDL_RenderTexture(renderer, texture, NULL, &score->bounds);
-    //printf("score x: %f, y: %f, w: %f, h: %f\n",score->bounds.x,score->bounds.y,score->bounds.w,score->bounds.h);
-    SDL_DestroyTexture(texture);
+    SDL_Texture *right_score_texture = get_texture(renderer,
+                                                   font,
+                                                   right_paddle_score_buffer, 
+                                                   *right_paddle_score->color,
+                                                   &texture_width,
+                                                   &texture_height);
+    if (!right_score_texture) {
+        SDL_Log("failed to render score text %s", SDL_GetError());
+        return;
+    }
+
+    right_score_rect.x = (SCORE_RIGHT_POSITION*SDL_WINDOW_WIDTH)-(texture_width/ 2.0f);
+    right_score_rect.y = SCORE_Y_POSITION;
+    right_score_rect.w = texture_width;
+    right_score_rect.h = texture_height;
+
+    SDL_RenderTexture(renderer, left_score_texture, NULL, &left_score_rect);
+    SDL_RenderTexture(renderer, right_score_texture, NULL, &right_score_rect);
+    SDL_DestroyTexture(left_score_texture);
 }
 
 // All messages are centered along the x, but caller can choose y axis

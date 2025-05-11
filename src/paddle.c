@@ -14,12 +14,7 @@ Paddle* paddle_create(int x_pos, int y_pos, int width, int height, float speed,
     paddle->is_human    = is_human;
     paddle->next_dir    = DIR_STOPPED;
     paddle->color       = color;
-    paddle->score = score_create(
-        (player_id == PADDLE_LEFT) ?
-                (float) SCORE_LEFT_POSITION : (float) SCORE_RIGHT_POSITION, // x
-                SCORE_Y_POSITION,                                           // y                      
-                &COLOR_SCORE                                                // color
-    );
+    paddle->score       = score_create(&COLOR_SCORE);
     return paddle;
 }
 

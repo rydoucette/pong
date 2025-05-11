@@ -2,11 +2,10 @@
 #include "score.h"
 #include <stdlib.h>
 
-Score *score_create(float x, float y, const SDL_Color *color) {
+Score *score_create(const SDL_Color *color) {
     Score *score = calloc(1,sizeof(Score));
     if(score == NULL)
         return NULL;
-    score->bounds = (SDL_FRect){ x, y, (float) 0, (float) 0 }; 
     score->score  = 0;
     score->color  = color;
     return score;
