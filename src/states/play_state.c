@@ -37,10 +37,12 @@ static SDL_AppResult handle_play_event(void *appstate, SDL_Event *event) {
         case SDL_EVENT_KEY_DOWN:
             switch (event->key.scancode) {
                 case SDL_SCANCODE_W:
-                    as->left_paddle->next_dir = DIR_UP;
+                    if(as->left_paddle->is_human)
+                        as->left_paddle->next_dir = DIR_UP;
                     break;
                 case SDL_SCANCODE_S:
-                    as->left_paddle->next_dir = DIR_DOWN;
+                    if(as->left_paddle->is_human)
+                        as->left_paddle->next_dir = DIR_DOWN;
                     break;
                 case SDL_SCANCODE_UP:
                     as->right_paddle->next_dir = DIR_UP;
@@ -63,7 +65,8 @@ static SDL_AppResult handle_play_event(void *appstate, SDL_Event *event) {
                     break;
                 case SDL_SCANCODE_W:
                 case SDL_SCANCODE_S:
-                    as->left_paddle->next_dir = DIR_STOPPED;
+                    if(as->left_paddle->is_human)
+                        as->left_paddle->next_dir = DIR_STOPPED;
                     break;
                 case SDL_SCANCODE_UP:
                 case SDL_SCANCODE_DOWN:

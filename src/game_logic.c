@@ -155,6 +155,7 @@ void determine_computer_direction(Paddle *paddle, Ball *ball, DifficultyLevel di
         
         if(difficulty == DEMO) {
             set_paddle_speed(paddle, (float) RETURN_TO_CENTER_SPEED);
+            destination_y = GAME_HEIGHT / 2.0f;
         } else if(difficulty == HARD) {
             destination_y = GAME_HEIGHT / 2.0f;
         } else {
@@ -184,17 +185,35 @@ void determine_computer_direction(Paddle *paddle, Ball *ball, DifficultyLevel di
     } else {
         paddle->next_dir = DIR_STOPPED;
     }
+    paddle->computer_target_y = destination_y;
 }
 
 // Move paddle if unobstructed
 void update_paddles(Paddle *left_paddle, Paddle *right_paddle, Ball *ball, 
                     DifficultyLevel difficulty) {
-    if(!left_paddle->is_human) 
+    if(difficulty == DEMO) {
         determine_computer_direction(left_paddle, ball, difficulty); 
+        determine_computer_direction(right_paddle, ball, difficulty); 
+    } else {
+        if(!left_paddle->is_human) {
+            if(left_paddle->reaction_time <= 0) {
+                determine_computer_direction(left_paddle, ball, difficulty); 
+                reset_reaction_time(left_paddle);
+            } else {
+                left_paddle->reaction_time--;
+            }
+        }
     
-    if(!right_paddle->is_human)
-        determine_computer_direction(right_paddle, ball, difficulty);
-
+        if(!right_paddle->is_human) {
+            if(right_paddle->reaction_time <= 0) {
+                determine_computer_direction(right_paddle, ball, difficulty); 
+                reset_reaction_time(right_paddle);
+            } else {
+                right_paddle->reaction_time--;
+            }
+        }
+    }
+                    
     try_move_paddle(left_paddle);
     try_move_paddle(right_paddle);
 }
@@ -275,10 +294,14 @@ void update_ball(Ball *ball, Paddle *left_paddle, Paddle *right_paddle) {
         if(ball->velocity_x >  0 && colliding_paddle->player_id == PADDLE_RIGHT || 
            ball->velocity_x <= 0 && colliding_paddle->player_id == PADDLE_LEFT) 
             reflect_ball_from_paddle(ball,colliding_paddle);
+        left_paddle->computer_target_y = -1;  // Reset targets for computers whenever ball is hit
+        right_paddle->computer_target_y = -1; // Reset targets for computers whenever ball is hit
     } else if(collided_with_upper_wall) {
         reflect_ball_from_wall(ball);
     } else if(scoring_paddle) {
         handle_goal(ball,scoring_paddle);
+        left_paddle->computer_target_y = -1;  // Reset targets for computers whenever ball is hit
+        right_paddle->computer_target_y = -1; // Reset targets for computers whenever ball is hit
     }
     ball_move(ball);
 } 
@@ -288,27 +311,29 @@ void initialize_paddles(void *appstate, bool left_is_human, bool right_is_human)
     AppState *as = (AppState *)appstate;
 
     int computer_reaction_delay = as->difficulty_settings->ai_reaction_time;
+    float left_paddle_speed = (left_is_human)  ? PADDLE_SPEED : as->difficulty_settings->paddle_speed;
+    float right_paddle_speed = (right_is_human) ? PADDLE_SPEED : as->difficulty_settings->paddle_speed;
+    int reaction_time = as->difficulty_settings->ai_reaction_time;
  
-    Paddle *left_paddle  = paddle_create(LEFT_PADDLE_START_X,  // x position
-                                         PADDLE_START_Y,       // y position
-                                         PADDLE_WIDTH,         // width
-                                         TAIL_LENGTH,          // height
-                                         (float) PADDLE_SPEED, // speed
-                                         0,                    // player ID
-                                         left_is_human,        // is human
-                                         &COLOR_P1);           // color             
-    Paddle *right_paddle = paddle_create(RIGHT_PADDLE_START_X, // x position
-                                         PADDLE_START_Y,       // y position
-                                         PADDLE_WIDTH,         // width
-                                         TAIL_LENGTH,          // hieght
-                                         (float) PADDLE_SPEED, // speed
-                                         1,                    // player ID
-                                         right_is_human,       // is human
-                                         &COLOR_P2);           // color   
-
-    set_reaction_time(left_paddle, computer_reaction_delay);
-    set_reaction_time(right_paddle, computer_reaction_delay);
-                        
+    Paddle *left_paddle  = paddle_create(LEFT_PADDLE_START_X,        // x position
+                                         PADDLE_START_Y,             // y position
+                                         PADDLE_WIDTH,               // width
+                                         TAIL_LENGTH,                // height
+                                         (float) left_paddle_speed,  // speed
+                                         0,                          // player ID
+                                         left_is_human,              // is human
+                                         reaction_time,              // ai reaction time
+                                         &COLOR_P1);                 // color             
+    Paddle *right_paddle = paddle_create(RIGHT_PADDLE_START_X,       // x position
+                                         PADDLE_START_Y,             // y position
+                                         PADDLE_WIDTH,               // width
+                                         TAIL_LENGTH,                // hieght
+                                         (float) right_paddle_speed, // speed
+                                         1,                          // player ID
+                                         right_is_human,             // is human
+                                         reaction_time,              // ai reaction time
+                                         &COLOR_P2);                 // color   
+              
     as->left_paddle  = left_paddle;
     as->right_paddle = right_paddle;
 }

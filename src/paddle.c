@@ -3,18 +3,20 @@
 #include "constants.h"
 
 // Instatiates a paddle struct
-Paddle* paddle_create(int x_pos, int y_pos, int width, int height, float speed,
-                      int player_id, bool is_human, const SDL_Color *color) {
+Paddle* paddle_create(int x_pos, int y_pos, int width, int height, float speed, int player_id,
+                      bool is_human, int reaction_time, const SDL_Color *color) {
     Paddle *paddle = calloc(1, sizeof(Paddle));
     if(paddle == NULL)
         return NULL;
     paddle->bounds = (SDL_FRect){ (float)x_pos, (float)y_pos, (float)width, (float)height };
-    paddle->speed       = speed;
-    paddle->player_id   = player_id;
-    paddle->is_human    = is_human;
-    paddle->next_dir    = DIR_STOPPED;
-    paddle->color       = color;
-    paddle->score       = score_create(&COLOR_SCORE);
+    paddle->speed         = speed;
+    paddle->player_id     = player_id;
+    paddle->is_human      = is_human;
+    paddle->next_dir      = DIR_STOPPED;
+    paddle->reaction_time = reaction_time;
+    paddle->time_till_react = reaction_time;
+    paddle->color         = color;
+    paddle->score         = score_create(&COLOR_SCORE);
     return paddle;
 }
 
@@ -37,8 +39,8 @@ float get_computer_target_y(Paddle *paddle) {
     return paddle->computer_target_y;
 }
 
-void set_reaction_time(Paddle *paddle, const int reaction_time) {
-    paddle->reaction_time = reaction_time;
+void reset_reaction_time(Paddle *paddle) {
+    paddle->time_till_react = paddle->reaction_time;
 }
 
 int get_reaction_time(Paddle *paddle) {

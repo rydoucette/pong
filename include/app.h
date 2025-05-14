@@ -20,8 +20,9 @@ typedef enum {
 
 typedef struct {
     float ball_speed;
+    float paddle_speed;
     float ai_reaction_time;
-    float ai_inaccuracy;  // 0.0 = perfect, higher = more error
+    float ai_inaccuracy;
 } DifficultySettings;
 extern DifficultySettings EASY_SETTINGS;
 extern DifficultySettings MEDIUM_SETTINGS;

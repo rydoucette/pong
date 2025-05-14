@@ -52,9 +52,10 @@
 #define REFLECTION_BOOST          1.5
 
 // Difficulty settings
-#define PADDLE_SPEED_EASY         1   // are these ones needed?
-#define PADDLE_SPEED_MEDIUM       1   // are these ones needed?
-#define PADDLE_SPEED_HARD         1   // are these ones needed?
+#define PADDLE_SPEED_EASY         0.25
+#define PADDLE_SPEED_MEDIUM       0.4
+#define PADDLE_SPEED_HARD         0.75
+#define PADDLE_SPEED_DEMO         1
 #define BALL_SPEED_EASY           0.70
 #define BALL_SPEED_MEDIUM         0.90
 #define BALL_SPEED_HARD           1.2
@@ -63,10 +64,10 @@
 #define INACCURACY_MEDIUM         2
 #define INACCURACY_HARD           1
 #define INACCURACY_DEMO           1
-#define REACTION_DELAY_EASY       20
-#define REACTION_DELAY_MEDIUM     10
+#define REACTION_DELAY_EASY       100
+#define REACTION_DELAY_MEDIUM     30
 #define REACTION_DELAY_HARD       5
-#define REACTION_DELAY_DEMO       5
+#define REACTION_DELAY_DEMO       0
 
 // Background
 static const SDL_Color COLOR_BG                   = {17, 17, 17, SDL_ALPHA_OPAQUE};

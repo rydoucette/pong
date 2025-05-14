@@ -20,16 +20,20 @@ const SDL_Scancode player_keys[PLAYER_COUNT][2] = {
 };
 
 // ball speed, ai reaction time, ai inaccuracy
-DifficultySettings EASY_SETTINGS =  {BALL_SPEED_EASY,       // Ball speed
-                                     REACTION_DELAY_EASY,   // Reaction delay 
-                                     INACCURACY_EASY };     // Inaccuracy level
+DifficultySettings EASY_SETTINGS =  {BALL_SPEED_EASY,        // Ball speed
+                                     PADDLE_SPEED_EASY,      // CPU paddle speed    
+                                     REACTION_DELAY_EASY,    // Reaction delay 
+                                     INACCURACY_EASY };      // Inaccuracy level
 DifficultySettings MEDIUM_SETTINGS = {BALL_SPEED_MEDIUM,     // Ball speed
+                                     PADDLE_SPEED_MEDIUM,    // CPU paddle speed    
                                       REACTION_DELAY_MEDIUM, // Reaction delay 
                                       INACCURACY_MEDIUM };   // Inaccuracy level
 DifficultySettings HARD_SETTINGS =   {BALL_SPEED_HARD,       // Ball speed
+                                      PADDLE_SPEED_HARD,     // CPU paddle speed    
                                       REACTION_DELAY_HARD,   // Reaction delay 
                                       INACCURACY_HARD };     // Inaccuracy level
 DifficultySettings DEMO_SETTINGS =   {BALL_SPEED_DEMO,       // Ball speed
+                                      PADDLE_SPEED_DEMO,     // CPU paddle speed    
                                       REACTION_DELAY_DEMO,   // Reaction delay 
                                       INACCURACY_DEMO };     // Inaccuracy level
 
