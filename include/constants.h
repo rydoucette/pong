@@ -31,13 +31,14 @@
 #define PADDLE_LEFT               0
 #define PADDLE_RIGHT              1
 #define WINNING_SCORE             5
+#define BALL_SPEED                1 //delete this
 #define BALL_SERVE_VX             0.5
 #define BALL_SERVE_VY             0.25
 #define SERVE_TO_LEFT_X_POS       (0.6 * GAME_WIDTH)
 #define SERVE_TO_RIGHT_X_POS      (0.4 * GAME_WIDTH)
 #define SERVE_TO_LEFT_Y_POS       (0.10 * GAME_HEIGHT)
 #define SERVE_TO_RIGHT_Y_POS      (0.10 * GAME_HEIGHT)
-#define PADDLE_MOVE_EPSILON       0.5
+#define PADDLE_MOVE_EPSILON       0.9
 #define GAME_STATE_STACK_SIZE     4
 #define TAIL_LENGTH               8
 #define PADDLE_WIDTH              1
@@ -47,8 +48,25 @@
 #define STEP_RATE_IN_MILLISECONDS 15
 #define PADDLE_SPEED              0.66
 #define RETURN_TO_CENTER_SPEED    0.25
-#define BALL_SPEED                1
+
 #define REFLECTION_BOOST          1.5
+
+// Difficulty settings
+#define PADDLE_SPEED_EASY         1   // are these ones needed?
+#define PADDLE_SPEED_MEDIUM       1   // are these ones needed?
+#define PADDLE_SPEED_HARD         1   // are these ones needed?
+#define BALL_SPEED_EASY           0.70
+#define BALL_SPEED_MEDIUM         0.90
+#define BALL_SPEED_HARD           1.2
+#define BALL_SPEED_DEMO           1
+#define INACCURACY_EASY           4
+#define INACCURACY_MEDIUM         2
+#define INACCURACY_HARD           1
+#define INACCURACY_DEMO           1
+#define REACTION_DELAY_EASY       20
+#define REACTION_DELAY_MEDIUM     10
+#define REACTION_DELAY_HARD       5
+#define REACTION_DELAY_DEMO       5
 
 // Background
 static const SDL_Color COLOR_BG                   = {17, 17, 17, SDL_ALPHA_OPAQUE};

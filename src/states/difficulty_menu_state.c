@@ -11,7 +11,7 @@
 static void update_start_menu_state(void *appstate) {
     AppState *as = (AppState *)appstate;
     update_ball(as->ball, as->left_paddle, as->right_paddle);
-    update_paddles(as->left_paddle,as->right_paddle, as->ball);
+    update_paddles(as->left_paddle,as->right_paddle, as->ball, as->difficulty_level);
 }
 
 static void render_start_menu_state(void *appstate) {
@@ -22,13 +22,12 @@ static void render_start_menu_state(void *appstate) {
     SDL_Color easy_color_option   = COLOR_OPTION_DISABLED;
     SDL_Color medium_color_option = COLOR_OPTION_DISABLED;
     SDL_Color hard_color_option   = COLOR_OPTION_DISABLED;
-    if(as->difficulty_level == EASY)
+    if(as->highlighted_difficulty_level == EASY)
         easy_color_option = COLOR_OPTION_HIGHLIGHTED;
-    else if(as->difficulty_level == MEDIUM)
+    else if(as->highlighted_difficulty_level == MEDIUM)
         medium_color_option = COLOR_OPTION_HIGHLIGHTED;
     else
         hard_color_option = COLOR_OPTION_HIGHLIGHTED;
-
 
     draw_message(as->renderer, 
                  "PONG",
@@ -84,22 +83,24 @@ static SDL_AppResult handle_start_menu_event(void *appstate, SDL_Event *event) {
                 case SDL_SCANCODE_RETURN:
                     // lock in choice
                     // start game
+                    as->difficulty_level = as->highlighted_difficulty_level;
+                    apply_difficulty_settings(as);
                     start_game(as);
                     gamestate_stack_push(as->game_state_stack, create_play_state());
                     break;
                 case SDL_SCANCODE_W:
                 case SDL_SCANCODE_UP:
-                    if(as->difficulty_level > 0)
-                        as->difficulty_level--;
+                    if(as->highlighted_difficulty_level > 0)
+                        as->highlighted_difficulty_level--;
                     else
-                        as->difficulty_level = 2;
+                        as->highlighted_difficulty_level = 2;
                     break;
                 case SDL_SCANCODE_S:
                 case SDL_SCANCODE_DOWN:
-                    if(as->difficulty_level < 2)
-                        as->difficulty_level++;
+                    if(as->highlighted_difficulty_level < 2)
+                        as->highlighted_difficulty_level++;
                     else
-                        as->difficulty_level = 0;
+                        as->highlighted_difficulty_level = 0;
                     break;
                 default: 
                     break;

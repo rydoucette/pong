@@ -69,8 +69,10 @@ float predict_ball_y_intersect(const Ball *ball, float target_x, float screen_he
     float y = ball->bounds.y;
     float w  = ball->bounds.h;
     float h  = ball->bounds.h;
-    float vx = ball->velocity_x * BALL_SPEED;
-    float vy = ball->velocity_y * BALL_SPEED;
+    float vx = ball->velocity_x * get_ball_speed(ball);
+    float vy = ball->velocity_y * get_ball_speed(ball);
+
+    printf("get ball speed from: %f\n",get_ball_speed(ball));
 
     // debug
     //printf("Ball x: %.2f, y: %.2f, w: %.2f, h: %.2f,\n",x,y,w,h);
@@ -92,8 +94,8 @@ float predict_ball_y_intersect(const Ball *ball, float target_x, float screen_he
         }
 
         // adjust ball position and try again
-        x += vx * BALL_SPEED;
-        y += vy * BALL_SPEED;
+        x += vx * get_ball_speed(ball);
+        y += vy * get_ball_speed(ball);
 
         // safety measure against infinite loops
         iterations_left--;
@@ -102,14 +104,47 @@ float predict_ball_y_intersect(const Ball *ball, float target_x, float screen_he
     return y;
 }
 
+float get_inaccuracy_level(DifficultyLevel difficulty) {
+    float offset = 0;
+    switch(difficulty) {
+        case EASY:
+            offset =  SDL_randf() + (float) INACCURACY_EASY;
+            break;
+        case MEDIUM:
+            offset = SDL_randf() + (float) INACCURACY_HARD;
+            break;
+        case HARD:
+            offset = SDL_randf() + (float) INACCURACY_HARD;
+            break;
+        case DEMO:
+            offset = (float) 0;
+            break;
+        default:
+            offset = (float) 0;
+            break;
+    }
+    if(SDL_rand(1)%2 == 0)
+        return offset * -1;
+    else
+        return offset;
+}
+
 // computes a target y coordinate that the paddle should target based on ball trajectory 
-void determine_computer_direction(Paddle *paddle, Ball *ball) {
+void determine_computer_direction(Paddle *paddle, Ball *ball, DifficultyLevel difficulty) {
+    /*
+     * add a reaction delay
+     * add inaccuracy
+     * capp the ai paddle speed
+     * make ai ignore some balls
+     * 
+     */
     float paddle__middle_y = (float) get_center_y_coord(paddle); //y coord of center paddle
     float epsilon = PADDLE_MOVE_EPSILON; // offset minor float accuracy
     float destination_y; // calculated point of where the paddle should go to
     float ball_travel_distance;
     float ball_travel_time;
     float paddle_travel_distance;
+    float inaccuracy = get_inaccuracy_level(difficulty);
     /*
      * If the ball is moving away from the paddle, then reposition paddle to the middle of
      * the screen. Otherwise we need to meet the ball based on its trajectory. 
@@ -117,23 +152,28 @@ void determine_computer_direction(Paddle *paddle, Ball *ball) {
     if((ball->velocity_x < 0 && paddle->player_id == PADDLE_RIGHT) || 
        (ball->velocity_x > 0 && paddle->player_id == PADDLE_LEFT)) {
         // ball is moving away from the paddle, reset to the middle of the screen
-        destination_y = GAME_HEIGHT / 2.0f;
-        //travel_distance = abs(destination_y - paddle__middle_y);
-        //travel_time = travel_distance/ball->velocity_x;
-        set_paddle_speed(paddle, (float) RETURN_TO_CENTER_SPEED);
+        
+        if(difficulty == DEMO) {
+            set_paddle_speed(paddle, (float) RETURN_TO_CENTER_SPEED);
+        } else if(difficulty == HARD) {
+            destination_y = GAME_HEIGHT / 2.0f;
+        } else {
+            destination_y = paddle__middle_y;
+        }
+
     } else {
         // ball is moving towards the paddle, caclulate the ball trajectory
         float paddle_leading_x_coord = (paddle->player_id == PADDLE_LEFT)? 1: GAME_WIDTH-1;
         destination_y = predict_ball_y_intersect(ball, 
                                                  paddle_leading_x_coord,
                                                  GAME_HEIGHT);
-        ball_travel_distance = fabsf(paddle_leading_x_coord - ball->bounds.x);
-        ball_travel_time = ball_travel_distance/fabsf(ball->velocity_x);
-        paddle_travel_distance = fabsf(destination_y - paddle__middle_y);
-        float paddle_velocity = paddle_travel_distance/ball_travel_time;
-        //printf("distance till target: %.2f\n",ball_travel_distance);
-        //printf("time till collision: %.2f\n",ball_travel_time);
-        set_paddle_speed(paddle,paddle_velocity);
+        if(difficulty == DEMO) {
+            ball_travel_distance = fabsf(paddle_leading_x_coord - ball->bounds.x);
+            ball_travel_time = ball_travel_distance/fabsf(ball->velocity_x);
+            paddle_travel_distance = fabsf(destination_y - paddle__middle_y);
+            float paddle_velocity = paddle_travel_distance/ball_travel_time;
+            set_paddle_speed(paddle,paddle_velocity);
+        }
     }
 
     // compare paddle position relative to the computed target, move in that direction 
@@ -147,11 +187,14 @@ void determine_computer_direction(Paddle *paddle, Ball *ball) {
 }
 
 // Move paddle if unobstructed
-void update_paddles(Paddle *left_paddle, Paddle *right_paddle, Ball *ball) {
-    if(!left_paddle->is_human)
-        determine_computer_direction(left_paddle, ball);  // if computer, pick a direction
+void update_paddles(Paddle *left_paddle, Paddle *right_paddle, Ball *ball, 
+                    DifficultyLevel difficulty) {
+    if(!left_paddle->is_human) 
+        determine_computer_direction(left_paddle, ball, difficulty); 
+    
     if(!right_paddle->is_human)
-        determine_computer_direction(right_paddle, ball); // if computer, pick a direction
+        determine_computer_direction(right_paddle, ball, difficulty);
+
     try_move_paddle(left_paddle);
     try_move_paddle(right_paddle);
 }
@@ -194,8 +237,8 @@ void reflect_ball_from_paddle(Ball *ball, Paddle *paddle) {
 
     // Normalize vector
     float magnitude = sqrtf(vx * vx + vy * vy); // magnitude of resulting vector
-    ball->velocity_x = (vx / magnitude) * BALL_SPEED; // noramlize it -1 to 1 and scale
-    ball->velocity_y = (vy / magnitude) * BALL_SPEED; // noramlize it -1 to 1 and scale
+    ball->velocity_x = (vx / magnitude) * get_ball_speed(ball);
+    ball->velocity_y = (vy / magnitude) * get_ball_speed(ball); 
 }
 
 // Ball bounces off upper or lower wall
@@ -243,6 +286,9 @@ void update_ball(Ball *ball, Paddle *left_paddle, Paddle *right_paddle) {
 // Create left and right game paddles
 void initialize_paddles(void *appstate, bool left_is_human, bool right_is_human) {
     AppState *as = (AppState *)appstate;
+
+    int computer_reaction_delay = as->difficulty_settings->ai_reaction_time;
+ 
     Paddle *left_paddle  = paddle_create(LEFT_PADDLE_START_X,  // x position
                                          PADDLE_START_Y,       // y position
                                          PADDLE_WIDTH,         // width
@@ -259,6 +305,10 @@ void initialize_paddles(void *appstate, bool left_is_human, bool right_is_human)
                                          1,                    // player ID
                                          right_is_human,       // is human
                                          &COLOR_P2);           // color   
+
+    set_reaction_time(left_paddle, computer_reaction_delay);
+    set_reaction_time(right_paddle, computer_reaction_delay);
+                        
     as->left_paddle  = left_paddle;
     as->right_paddle = right_paddle;
 }
@@ -266,14 +316,38 @@ void initialize_paddles(void *appstate, bool left_is_human, bool right_is_human)
 // Create the game ball
 void initialize_ball(void *appstate) {
     AppState *as = (AppState *)appstate;
-    Ball *ball = ball_create(SERVE_TO_RIGHT_X_POS, // x position
-                             SERVE_TO_RIGHT_Y_POS, // // y position
-                             BALL_BLOCK_SIZE, // width
-                             BALL_BLOCK_SIZE, // height
-                             BALL_SERVE_VX,   // velocity x
-                             BALL_SERVE_VY,   // velocity y
-                             &COLOR_BALL);    // color
+    Ball *ball = ball_create(SERVE_TO_RIGHT_X_POS,                // x position
+                             SERVE_TO_RIGHT_Y_POS,                // y position
+                             BALL_BLOCK_SIZE,                     // width
+                             BALL_BLOCK_SIZE,                     // height
+                             as->difficulty_settings->ball_speed, // ball speed
+                             BALL_SERVE_VX,                       // velocity x
+                             BALL_SERVE_VY,                       // velocity y
+
+                             &COLOR_BALL);                        // color
     as->ball = ball;
+}
+
+// Apply difficulty specific settings
+void apply_difficulty_settings(void *appstate) {
+    AppState *as = (AppState *)appstate;
+    switch(as->difficulty_level) {
+        case EASY:
+            as->difficulty_settings = &EASY_SETTINGS;
+            break;
+        case MEDIUM:
+            as->difficulty_settings = &MEDIUM_SETTINGS;
+            break;
+        case HARD:
+            as->difficulty_settings = &HARD_SETTINGS;
+            break;
+        case DEMO:
+            as->difficulty_settings = &DEMO_SETTINGS;
+            break;
+        default:
+            as->difficulty_settings = &EASY_SETTINGS;
+            break;
+    }
 }
 
 // Resume the game

@@ -19,6 +19,21 @@ const SDL_Scancode player_keys[PLAYER_COUNT][2] = {
     {SDL_SCANCODE_W, SDL_SCANCODE_S}
 };
 
+// ball speed, ai reaction time, ai inaccuracy
+DifficultySettings EASY_SETTINGS =  {BALL_SPEED_EASY,       // Ball speed
+                                     REACTION_DELAY_EASY,   // Reaction delay 
+                                     INACCURACY_EASY };     // Inaccuracy level
+DifficultySettings MEDIUM_SETTINGS = {BALL_SPEED_MEDIUM,     // Ball speed
+                                      REACTION_DELAY_MEDIUM, // Reaction delay 
+                                      INACCURACY_MEDIUM };   // Inaccuracy level
+DifficultySettings HARD_SETTINGS =   {BALL_SPEED_HARD,       // Ball speed
+                                      REACTION_DELAY_HARD,   // Reaction delay 
+                                      INACCURACY_HARD };     // Inaccuracy level
+DifficultySettings DEMO_SETTINGS =   {BALL_SPEED_DEMO,       // Ball speed
+                                      REACTION_DELAY_DEMO,   // Reaction delay 
+                                      INACCURACY_DEMO };     // Inaccuracy level
+
+
 // This function runs when a new event (mouse input, keypresses, etc) occurs
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
     AppState *as = (AppState *)appstate;
@@ -91,10 +106,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     as->game_state_stack = malloc(sizeof(GameStateStack));
     gamestate_stack_create(as->game_state_stack, GAME_STATE_STACK_SIZE);
     gamestate_stack_push(as->game_state_stack, create_start_menu_state());
+    as->game_mode = PVP;
+    as->difficulty_level = DEMO;
+    apply_difficulty_settings(as);
     initialize_paddles(as, false, false); // sets up two AI players playing in background
     initialize_ball(as);
-    as->game_mode = PVP;
-    as->difficulty_level = EASY; // wont be relevant if user selects PVP
 
     return SDL_APP_CONTINUE;
 }

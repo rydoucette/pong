@@ -11,7 +11,7 @@
 static void update_start_menu_state(void *appstate) {
     AppState *as = (AppState *)appstate;
     update_ball(as->ball, as->left_paddle, as->right_paddle);
-    update_paddles(as->left_paddle,as->right_paddle, as->ball);
+    update_paddles(as->left_paddle,as->right_paddle, as->ball, as->difficulty_level);
 }
 
 static void render_start_menu_state(void *appstate) {

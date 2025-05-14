@@ -17,13 +17,16 @@ typedef struct
     SDL_FRect       bounds;
     float           velocity_x;
     float           velocity_y;
+    float           speed;
     bool            visible;
     const SDL_Color *color;
 } Ball;
 
 // Function declarations
-Ball *ball_create(int x_pos, int y_pos, int width, int height, 
+Ball *ball_create(int x_pos, int y_pos, int width, int height, float speed,
                   float vx, float vy, const SDL_Color *color);
+void set_ball_speed(Ball *ball, float speed);
+float get_ball_speed(const Ball *ball);
 void ball_free(Ball *ball);
 void ball_move(Ball *ball);
 

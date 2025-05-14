@@ -30,6 +30,8 @@ typedef struct
     Score           *score;
     bool            is_human;
     PaddleDirection next_dir;
+    float           computer_target_y; // where computer is targetting, to avoid recompute        
+    int             reaction_time;     // loops until computer will react to the ball
     const SDL_Color *color;
 } Paddle;
 
@@ -46,6 +48,10 @@ Paddle *paddle_create(
 );
 void  paddle_free(Paddle *paddle);
 void  set_paddle_speed(Paddle *paddle, const float speed);
+void  set_computer_target_y(Paddle *paddle, const float y);
+float get_computer_target_y(Paddle *paddle);
+void  set_reaction_time(Paddle *paddle, const int reaction_time);
+int   get_reaction_time(Paddle *paddle);
 void  paddle_move(Paddle *paddle);
 float get_center_y_coord(const Paddle *paddle);
 

@@ -29,6 +29,22 @@ void set_paddle_speed(Paddle *paddle, const float speed) {
     paddle->speed = speed;
 }
 
+void set_computer_target_y(Paddle *paddle, const float y) {
+    paddle->computer_target_y = y;
+}
+
+float get_computer_target_y(Paddle *paddle) {
+    return paddle->computer_target_y;
+}
+
+void set_reaction_time(Paddle *paddle, const int reaction_time) {
+    paddle->reaction_time = reaction_time;
+}
+
+int get_reaction_time(Paddle *paddle) {
+    return paddle->reaction_time; 
+}
+
 // Move paddle up or down based on velocity
 void paddle_move(Paddle *paddle) {
     switch (paddle->next_dir) {
